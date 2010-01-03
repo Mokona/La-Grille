@@ -1,0 +1,169 @@
+import os.path
+import os
+import UnitTestBuilder
+import CustomProjectBuilders
+
+# TODO : maybe we can cut the dependencies to boost because it recursively tests a lot of things
+# in the boost lib, which we don't care about if we don't change the boost lib
+
+# TODO : limitation of building environment. For example, tweaking the PATH to avoid long searching path for executable
+# But maybe it's already tweaked by SCons. To be checked.
+
+# Simple progress spinner
+# Progress(['-\r', '\\\r', '|\r', '/\r'], interval = 10)
+
+# Ensuring versions
+EnsureSConsVersion(1, 0)  # Variables usage
+EnsurePythonVersion(2, 2) # iteritems() usage
+
+# Help
+Help("""
+Type : scons tests to run tests
+""")
+
+# Create builders
+unitTestBld = Builder(action = UnitTestBuilder.builder_unit_test) # Unit test builder
+# libProjectBld = Builder(action = CustomProjectBuilders.builder_library_project) # Library project builder
+
+# Defines levels
+all_build_levels = [ 'debug', 'release', 'coverage', 'profile' ]
+
+# Defines Command-Line Variables
+
+clVariables = Variables()
+clVariables.Add(EnumVariable('build_level',
+                             'Set to the build level (debug, release,...)',
+                             'debug',
+                             allowed_values = all_build_levels))
+
+## TODO : about build_level, a nice feature would be to permit multiple level on the same
+## build, something like : scons build_level=debug build_level=release, or
+## scons build_level=debug,release or even scons build_level=all
+## We could then build one Environment by level.
+## That's a minor feature because a script can call scons on every needed targets, but
+## it could be faster (not sure, to be timed)
+
+# Creating environment
+env = Environment(variables = clVariables)
+# env = Environment(tools = ['mingw'])
+
+# Post-process for Command-Line Variables
+Help(clVariables.GenerateHelpText(env))
+
+## Printing unknown variables
+for key, value in clVariables.UnknownVariables().iteritems():
+    print "Unknown variable specified in command line: %s = %s" % (key, value)
+
+# Adds the builders
+env.Append(BUILDERS = {'Test' :  unitTestBld})
+env.AddMethod(CustomProjectBuilders.method_library_project, "LibraryProject")
+env.AddMethod(CustomProjectBuilders.method_program_project, "ProgramProject")
+
+# Global environment configuration
+## Include path
+env.AppendUnique(CPPPATH = ['../sources'])
+
+## Defines
+if env['build_level'] == 'debug':
+    env.AppendUnique(CPPDEFINES = ['ASSERT_ON'])
+
+env.AppendUnique(CPPDEFINES = ['MOCKABLE_ON']) # Mock active on all level (TODO : remove for the final target when implemented)
+
+# To add a new host detection, this next line is useful
+# print env['TOOLS']
+
+# Detection of host
+## TODO : a command line variable could be added. By using DefaultEnvironment, we could skip some
+## automatic initialization by Python
+## TODO : to detect host, use the Platform() command on the root environment.
+host_detection = None
+if env['PLATFORM'] == 'posix' and 'gcc' in env['TOOLS']:
+    host_detection = 'posix-gcc'
+elif env['PLATFORM'] == 'win32' and 'msvc' in env['TOOLS']:
+    host_detection = 'win32-msvc'
+elif env['PLATFORM'] == 'win32' and 'mingw' in env['TOOLS']:
+    host_detection = 'win32-mingw'
+
+if host_detection == None:
+    print 'Host not detected'
+    env.Exit(1)
+
+# At now, no cross-compiling support. Host and Target are the same.
+# In fact, the code just above detects the target rather than the host
+compile_target = host_detection 
+
+print 'Host is   : ' + host_detection
+print 'Target is : ' + compile_target
+print 'Level is  : ' + env['build_level']
+
+# Configuration of the build for plateform
+configuration = {}
+configuration['INSTALL_PATH'] = os.path.abspath('../output')
+
+configuration['EXTERN'] = {}
+configuration['EXTERN']['unittest'] = {}
+configuration['EXTERN']['program_options'] = {}
+configuration['EXTERN']['gcov'] = {}
+
+configuration['INTERN'] = {}
+
+# End of Configuration
+
+# msvc Win32 specific flags
+if host_detection == 'win32-msvc':
+    if env['build_level'] == 'debug':
+        pass
+    env['WINDOWS_INSERT_MANIFEST'] = True
+    env.AppendUnique(CPPFLAGS = ['/EHsc']) # Only for Win32 (exceptions)
+    env.AppendUnique(CPPFLAGS = ['/MD']) # Only for Win32 (MT DLL)
+    env.AppendUnique(CPPPATH = [os.path.abspath('../../boost_install/includes')]) # Useful only for tests. Can we separate environments ?
+    # On Win32, Unit test library is found automatically. No need to link it.
+    configuration['EXTERN']['unittest']['LIB'] = ''
+    configuration['EXTERN']['unittest']['LIBPATH'] = os.path.abspath('../../boost_install/libraries/win32/')
+
+if host_detection == 'posix-gcc':
+    if env['build_level'] in ['debug', 'coverage', 'profile']:
+        env.AppendUnique(CPPFLAGS = ['-g', '-Wall', '-Werror', '-O0'])
+    if env['build_level'] == 'coverage':
+        env.AppendUnique(CPPFLAGS = ['-fprofile-arcs', '-ftest-coverage'])
+    if env['build_level'] == 'profile':
+        env.AppendUnique(CPPFLAGS = ['-pg'])
+        env.AppendUnique(LINKFLAGS = ['-pg'])
+    if env['build_level'] == 'release':
+        env.MergeFlags('-O3')
+        env.AppendUnique('-DNDEBUG')
+
+    configuration['EXTERN']['unittest']['LIB'] = 'boost_unit_test_framework-mt'
+    # configuration['EXTERN']['unittest']['LIBPATH'] = os.path.abspath('/usr/lib')
+    configuration['EXTERN']['unittest']['LIBPATH'] = '' # Default on posix
+    configuration['EXTERN']['program_options']['LIB'] = 'boost_program_options-mt'
+    configuration['EXTERN']['program_options']['LIBPATH'] = '' # Default on posix
+    configuration['EXTERN']['gcov']['LIB'] = 'gcov'
+    configuration['EXTERN']['gcov']['LIBPATH'] = '' # Default on posix
+
+if host_detection == 'win32-mingw':
+    if env['build_level'] == 'debug' or env['build_level'] == 'coverage':
+        env.AppendUnique(CPPFLAGS = ['-g', '-Wall', '-Werror', '-O0'])
+    if env['build_level'] == 'release':
+        env.MergeFlags('-O3')
+        env.AppendUnique('-DNDEBUG')
+
+    configuration['EXTERN']['unittest']['LIB'] = 'boost_unit_test_framework-mgw34-mt-1_39'
+    configuration['EXTERN']['unittest']['LIBPATH'] = '' # Default on posix
+    configuration['EXTERN']['unittest']['LIBPATH'] = os.path.abspath('../../boost_install/libraries/win32/')
+
+# Compute VariantDir base path
+base_variant_dir = '../output/temp/'
+base_variant_dir = os.path.join(base_variant_dir, compile_target)
+base_variant_dir = os.path.join(base_variant_dir, env['build_level'])
+
+# Calling project SConscripts
+SConscript('../sources/SConscript', exports = ['env', 'configuration'], variant_dir = os.path.join(base_variant_dir, 'sources' ) )
+SConscript('../tests/SConscript', exports = ['env', 'configuration'], variant_dir = os.path.join(base_variant_dir, 'tests' ) )
+
+# env.Default(None)
+# env.Default('testwordgrid')
+
+tests = env.Alias('tests', ['testwordgrid'])
+env.Alias('all', [tests, 'gridgen', 'testgen'])
+

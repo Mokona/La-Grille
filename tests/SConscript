@@ -1,0 +1,17 @@
+Import('env', 'configuration')
+
+
+# ( list of internal dependencies, list of external dependencies, ...)
+description = ( ['wordgrid'], ['unittest'] )
+env.AppendUnique(CPPPATH = ['testwordgrid'])
+
+if env['build_level'] == 'coverage':
+    description[1].append('gcov')
+
+testwordgrid = env.ProgramProject('testwordgrid', description, configuration)
+
+env.Test('testwordgrid/testwordgrid.passed', testwordgrid)
+dllinstall = env.Install('testwordgrid/', env.Glob('../../../../../../boost_install/libraries/win32/*.dll')) # Useful for Win32 only
+env.Alias("testwordgrid", [dllinstall, 'testwordgrid/testwordgrid.passed'])
+
+

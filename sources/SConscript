@@ -1,0 +1,28 @@
+import os.path
+
+Import('env', 'configuration')
+
+# Wordgrid library
+wordgrid = env.LibraryProject('wordgrid')
+env.Alias('wordgrid', wordgrid)
+
+configuration['INTERN']['wordgrid'] = {}
+configuration['INTERN']['wordgrid']['LIB'] = 'wordgrid'
+configuration['INTERN']['wordgrid']['LIBPATH'] = os.path.dirname(os.path.abspath(str(wordgrid[0])))
+
+# Gridgen program
+
+gridgenDescription = ( ['wordgrid'], ['program_options'] )
+
+gridgen = env.ProgramProject('gridgen', gridgenDescription, configuration)
+installGridgen = env.Install(os.path.join(configuration['INSTALL_PATH'], 'gridgen'), gridgen)
+env.Alias('gridgen', installGridgen)
+
+# Testgen program
+
+testgenDescription = ( ['wordgrid'], [] )
+
+testgen = env.ProgramProject('testgen', testgenDescription, configuration)
+installTestgen = env.Install(os.path.join(configuration['INSTALL_PATH'], 'testgen'), testgen)
+env.Alias('testgen', installTestgen)
+

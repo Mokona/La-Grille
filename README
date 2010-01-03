@@ -1,0 +1,27 @@
+Grille
+------
+
+Pour compiler grille, vous avez besoin de :
+- g++
+- scons
+- boost
+
+Le système de compilation est assez basique : pas de vérification de bibliothèque.
+
+scons s'invoque avec une cible et éventuellement une configuration de construction.
+scons --help peut aider.
+
+Les cibles à l'écriture de ce document sont :
+- tests : compile et lance les tests unitaires
+- testgen : compile et installe localement l'exécutable de tests fonctionnels
+- gridgen : compile et installe localement l'exécutable de générateur de grilles
+- all : tout ça
+
+Les installations locales sont faites dans le répertoire output/
+
+Les configuration de construction sont :
+- debug : pas d'optimisation
+- release : optimisations, définition de NDEBUG
+- profile : à destination de gprof
+- coverage : à destination de gcov (pour la cible tests uniquement)
+
