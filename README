@@ -25,3 +25,10 @@ Les configuration de construction sont :
 - profile : à destination de gprof
 - coverage : à destination de gcov (pour la cible tests uniquement)
 
+Droits d'auteur / Copyright
+---------------------------
+
+Sauf mention explicite, tous les fichiers contenu dans l'archive ou le dépôt
+ont pour auteur Sylvain Glaize.
+
+

@@ -23,7 +23,7 @@ namespace Gridgen
 {
     void LoadDictionary(Wordgrid::Dictionary & dictionary)
     {
-        std::ifstream inputFile("/home/mokona/Developpement/AteliersGCN/Grille/grille/data/dictionary.txt");
+        std::ifstream inputFile("../../data/dictionary.txt");
 
         Wordgrid::OneWordByLineReader reader(dictionary, inputFile);
         reader.Read();

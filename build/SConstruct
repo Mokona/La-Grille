@@ -120,6 +120,10 @@ if host_detection == 'win32-msvc':
     # On Win32, Unit test library is found automatically. No need to link it.
     configuration['EXTERN']['unittest']['LIB'] = ''
     configuration['EXTERN']['unittest']['LIBPATH'] = os.path.abspath('../../boost_install/libraries/win32/')
+    configuration['EXTERN']['program_options']['LIB'] = ''
+    configuration['EXTERN']['program_options']['LIBPATH'] = ''
+    configuration['EXTERN']['gcov']['LIB'] = ''
+    configuration['EXTERN']['gcov']['LIBPATH'] = ''
 
 if host_detection == 'posix-gcc':
     if env['build_level'] in ['debug', 'coverage', 'profile']:
@@ -151,6 +155,10 @@ if host_detection == 'win32-mingw':
     configuration['EXTERN']['unittest']['LIB'] = 'boost_unit_test_framework-mgw34-mt-1_39'
     configuration['EXTERN']['unittest']['LIBPATH'] = '' # Default on posix
     configuration['EXTERN']['unittest']['LIBPATH'] = os.path.abspath('../../boost_install/libraries/win32/')
+    configuration['EXTERN']['program_options']['LIB'] = 'boost_program_options-mt'
+    configuration['EXTERN']['program_options']['LIBPATH'] = '' # Default on posix
+    configuration['EXTERN']['gcov']['LIB'] = 'gcov'
+    configuration['EXTERN']['gcov']['LIBPATH'] = '' # Default on posix
 
 # Compute VariantDir base path
 base_variant_dir = '../output/temp/'
