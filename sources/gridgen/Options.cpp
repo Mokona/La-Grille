@@ -1,6 +1,7 @@
 #include "gridgen/Options.h"
 #include "boost/program_options/options_description.hpp"
 #include "boost/program_options/parsers.hpp"
+#include <limits>
 
 namespace Gridgen
 {
@@ -13,6 +14,8 @@ namespace Gridgen
             ("help", "produce help message")
             ("hori,x", po::value<int>(), "horizontal size of grid")
             ("vert,y", po::value<int>(), "vertical size of grid")
+            ("minsize", po::value<int>(), "minimum size of a word in dictionary")
+            ("maxsize", po::value<int>(), "maximum size of a word in dictionary")
             ("logscanner", "activate position scanner log")
             ("logdict", "activate dictionary log")
             ("logwriter", "activate word writer log")
@@ -48,6 +51,30 @@ namespace Gridgen
         }
 
         return Wordgrid::Vector2(hori, vert);
+    }
+
+    int Options::GetMinWordSize() const
+    {
+        int min = 0;
+
+        if (vm.count("minsize"))
+        {
+            min = vm["minsize"].as<int>();
+        }
+
+        return min;
+    }
+
+    int Options::GetMaxWordSize() const
+    {
+        int max = std::numeric_limits<int>::max();
+
+        if (vm.count("maxsize"))
+        {
+            max = vm["maxsize"].as<int>();
+        }
+
+        return max;
     }
 
     bool Options::LogPositionScanner() const

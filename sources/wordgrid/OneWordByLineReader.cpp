@@ -8,14 +8,18 @@
 
 namespace Wordgrid
 {
-    void addToDictionary(Dictionary & dictionary, const std::string & word)
+    void addToDictionary(Dictionary & dictionary, const Filter::Filter * filter, const std::string & word)
     {
-        dictionary.InsertWord(word);
+        if (!filter || (*filter)(word))
+        {
+            dictionary.InsertWord(word);
+        }
     }
 
     OneWordByLineReader::OneWordByLineReader(Dictionary & dictionary, std::istream & stream) :
         m_dictionary(dictionary),
-        m_stream(stream)
+        m_stream(stream),
+        m_filter(NULL)
     {
     }
     
@@ -27,7 +31,12 @@ namespace Wordgrid
     {
         std::for_each(std::istream_iterator<std::string>(m_stream),
                       std::istream_iterator<std::string>(),
-                      boost::bind(addToDictionary, boost::ref(m_dictionary), _1));
+                      boost::bind(addToDictionary, boost::ref(m_dictionary), m_filter, _1));
+    }
+
+    void OneWordByLineReader::SetFilter(const Filter::Filter & filter)
+    {
+        m_filter = &filter;
     }
 }
 

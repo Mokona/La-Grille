@@ -21,12 +21,16 @@
 
 namespace Gridgen
 {
-    void LoadDictionary(Wordgrid::Dictionary & dictionary)
+    void LoadDictionary(Wordgrid::Dictionary & dictionary, int minWordSize, int maxWordSize)
     {
-        std::ifstream inputFile("../../data/dictionary.txt");
+        std::ifstream inputFile("/home/mokona/Developpement/AteliersGCN/Grille/grille/data/dictionary.txt");
+
+        Wordgrid::Filter::MinMax filter(minWordSize, maxWordSize);
 
         Wordgrid::OneWordByLineReader reader(dictionary, inputFile);
+        reader.SetFilter(filter);
         reader.Read();
+
     }
 
     SolverFactory::SolverFactory(const Options & options) :
@@ -92,7 +96,10 @@ namespace Gridgen
             solver.SetSolverHook(solver);
         }
 
-        LoadDictionary(dictionary);
+        int minWordSize = m_options.GetMinWordSize();
+        int maxWordSize = m_options.GetMaxWordSize();
+
+        LoadDictionary(dictionary, minWordSize, maxWordSize);
 
         std::cout << "Solving...\n";
         {

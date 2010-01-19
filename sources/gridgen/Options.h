@@ -11,6 +11,8 @@ namespace Gridgen
             bool WantsHelp() const;
 
             const Wordgrid::Vector2 GetGridSize() const;
+            int GetMinWordSize() const;
+            int GetMaxWordSize() const;
             bool LogPositionScanner() const;
             bool LogDictionary() const;
             bool LogWordWriter() const;

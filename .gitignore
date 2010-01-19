@@ -1,4 +1,5 @@
 .bzr*
 output/
 *~
+*pyc
 

@@ -1,6 +1,8 @@
 #ifndef WORDGRID_ONEWORDBYLINEREADER
+#define WORDGRID_ONEWORDBYLINEREADER
 
 #include "wordgrid/DictionaryReader.h"
+#include "wordgrid/ReaderFilter.h"
 #include <istream>
 
 namespace Wordgrid
@@ -14,10 +16,13 @@ namespace Wordgrid
             virtual ~OneWordByLineReader();
 
             virtual void Read();
+
+            void SetFilter(const Filter::Filter & filter);
         
         private:
             Dictionary & m_dictionary;
             std::istream & m_stream;
+            const Filter::Filter * m_filter;
     };
     
 }
