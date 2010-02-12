@@ -136,5 +136,30 @@ BOOST_AUTO_TEST_CASE(output_nothing_when_maximum_depth_not_reached)
     BOOST_CHECK_EQUAL(sizeOfOutput2, sizeOfOutput);
 }
 
+BOOST_AUTO_TEST_CASE(output_nothing_when_maximum_depth_not_reached_unless_its_forced)
+{
+    MockSolver solver;
+    std::stringstream strStream;
+    SolverLog solverLog(solver, strStream);
+    solverLog.SetForcePrintPeriod(1);
+
+    solver.m_nextSolver = &solverLog;
+    Grid grid;
+
+    BOOST_CHECK_EQUAL(0, strStream.str().size());
+    solver.m_maximumRecursiveLevel = 9;
+    solverLog.Solve(grid);
+
+    std::size_t sizeOfOutput = strStream.str().size();
+    BOOST_CHECK(sizeOfOutput > 0);
+
+    solver.m_maximumRecursiveLevel = 1;
+    solverLog.Solve(grid);
+
+    std::size_t sizeOfOutput2 = strStream.str().size();
+    BOOST_CHECK(sizeOfOutput2 > sizeOfOutput);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
 

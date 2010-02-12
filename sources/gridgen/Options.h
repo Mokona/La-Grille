@@ -17,6 +17,7 @@ namespace Gridgen
             bool LogDictionary() const;
             bool LogWordWriter() const;
             bool LogSolver() const;
+            bool TreeDictionary() const;
 
         private:
             boost::program_options::variables_map vm;

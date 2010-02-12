@@ -20,12 +20,16 @@ namespace Wordgrid
             ui32 GetRecursiveDepth() const;
             ui32 GetMaximumRecursiveDepth() const;
 
+            void SetForcePrintPeriod(ui32 period);
+
         private:
             void PrintLog(Grid & grid);
 
             Solver & m_nextSolver;
             ui32 m_depth;
             ui32 m_maximumDepth;
+            ui32 m_callCount;
+            ui32 m_forcePrintPeriod;
             std::ostream & m_stream;
     };
     

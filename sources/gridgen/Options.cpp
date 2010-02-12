@@ -20,6 +20,7 @@ namespace Gridgen
             ("logdict", "activate dictionary log")
             ("logwriter", "activate word writer log")
             ("logsolver", "activate solver log")
+            ("treedict", "uses tree dictionary implementation")
         ;
 
         po::store(po::parse_command_line(argc, argv, optionsDescription), vm);
@@ -95,6 +96,11 @@ namespace Gridgen
     bool Options::LogSolver() const
     {
         return vm.count("logsolver");
+    }
+
+    bool Options::TreeDictionary() const
+    {
+        return vm.count("treedict");
     }
 }
 

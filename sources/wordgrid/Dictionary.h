@@ -26,7 +26,7 @@ namespace Wordgrid
             virtual i32 GetWordCount() const = 0;
     };
     
-} /* Wordgrid */
+}
 
 #endif
 

@@ -1,18 +1,18 @@
-#ifndef WORDGRID_DICTIONARYSIMPLEIMPL
-#define WORDGRID_DICTIONARYSIMPLEIMPL
+#ifndef WORDGRID_DICTIONARYTREEIMPL
+#define WORDGRID_DICTIONARYTREEIMPL
 
 #include "wordgrid/Dictionary.h"
-#include <set>
+#include "wordgrid/CharTree.h"
+#include <vector>
 #include <string>
 
 namespace Wordgrid
 {
-    /** A very direct, simple and slow dictionary implementation. */
-    class DictionarySimpleImpl : public Dictionary
+    class DictionaryTreeImpl : public Dictionary
     {
         public:
-            DictionarySimpleImpl();
-            virtual ~DictionarySimpleImpl();
+            DictionaryTreeImpl();
+            virtual ~DictionaryTreeImpl();
 
             virtual FoundWords Search(const PartialWord & partialWord) const;
 
@@ -23,7 +23,8 @@ namespace Wordgrid
             virtual i32 GetWordCount() const;
 
         private:
-            std::set<std::string> m_words;
+            CharTree m_charTree;
+            ui32 m_wordCount;
     };
     
 }

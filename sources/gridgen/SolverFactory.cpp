@@ -8,6 +8,7 @@
 #include "wordgrid/PositionScannerImpl.h"
 #include "wordgrid/PositionScannerLog.h"
 #include "wordgrid/DictionarySimpleImpl.h"
+#include "wordgrid/DictionaryTreeImpl.h"
 #include "wordgrid/DictionaryLog.h"
 #include "wordgrid/FullGridWordRequestGenerator.h"
 #include "wordgrid/OneWordByLineReader.h"
@@ -61,15 +62,25 @@ namespace Gridgen
             solver.SetPositionScanner(scanner);
         }
 
-        Wordgrid::DictionarySimpleImpl dictionary;
-        Wordgrid::DictionaryLog dictionaryLog(dictionary);
+        Wordgrid::Dictionary * dictionary;
+
+        if (m_options.TreeDictionary())
+        {
+            dictionary = new Wordgrid::DictionaryTreeImpl;
+        }
+        else
+        {
+            dictionary = new Wordgrid::DictionarySimpleImpl;
+        }
+
+        Wordgrid::DictionaryLog dictionaryLog(*dictionary);
         if (m_options.LogDictionary())
         {
             solver.SetDictionary(dictionaryLog);
         }
         else
         {
-            solver.SetDictionary(dictionary);
+            solver.SetDictionary(*dictionary);
         }
 
         Wordgrid::WordWriterImpl writer(grid);
@@ -99,7 +110,7 @@ namespace Gridgen
         int minWordSize = m_options.GetMinWordSize();
         int maxWordSize = m_options.GetMaxWordSize();
 
-        LoadDictionary(dictionary, minWordSize, maxWordSize);
+        LoadDictionary(*dictionary, minWordSize, maxWordSize);
 
         std::cout << "Solving...\n";
         {
@@ -109,6 +120,8 @@ namespace Gridgen
 
         std::cout << "Grid :\n";
         std::cout << grid << std::endl;
+
+        delete dictionary;
     }
 }
 

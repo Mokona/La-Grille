@@ -10,4 +10,5 @@ namespace Wordgrid
     {
     }
     
-} /* Wordgrid */
+}
+

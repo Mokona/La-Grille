@@ -31,24 +31,17 @@ namespace Wordgrid
 
     void DictionarySimpleImpl::InsertWord(const std::string & word)
     {
-        m_words.push_back(word);
+        m_words.insert(word);
     }
 
     void DictionarySimpleImpl::RemoveWord(const std::string & word)
     {
-        std::vector<std::string>::iterator it = std::find(m_words.begin(), m_words.end(), word);
-        if (it != m_words.end())
-        {
-            m_words.erase(it);
-        }
+        m_words.erase(word);
     }
 
-    // TODO : change to IsWordInDictionary
-    // It is different because one letter word is valid even if not in the dictionary
-    // Or is it ?
     bool DictionarySimpleImpl::IsWordValid(const std::string & word) const
     {
-        return std::find(m_words.begin(), m_words.end(), word) != m_words.end();
+        return m_words.find(word) != m_words.end();
     }
 
     i32 DictionarySimpleImpl::GetWordCount() const
